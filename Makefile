@@ -2,8 +2,8 @@ CC = avr-gcc
 OBJCOPY = avr-objcopy
 DFU_PROGRAMMER = dfu-programmer
 
-CFLAGS = -mmcu=at90usb162 -DF_CPU=8000000UL -c -Wall -I. -Os
-LDFLAGS = -mmcu=at90usb162 -g -lm -Wl,--gc-sections
+CFLAGS = -mmcu=atmega16u2 -DF_CPU=8000000UL -c -Wall -I. -Os
+LDFLAGS = -mmcu=atmega16u2 -g -lm -Wl,--gc-sections
 
 all: timer.hex
 
@@ -17,13 +17,13 @@ timer.hex: timer.elf
 	$(OBJCOPY) -j .text -j .data -O ihex $< $@
 
 erase:
-	$(DFU_PROGRAMMER) at90usb162 erase
+	$(DFU_PROGRAMMER) atmega16u2 erase
 
 flash: erase timer.hex
-	$(DFU_PROGRAMMER) at90usb162 flash $<
+	$(DFU_PROGRAMMER) atmega16u2 flash $<
 
 reset:
-	$(DFU_PROGRAMMER) at90usb162 reset
+	$(DFU_PROGRAMMER) atmega16u2 reset
 
 clean:
 	rm -f timer.o timer.elf timer.hex
