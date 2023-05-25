@@ -18,10 +18,6 @@ int main(void){
     //DDRB &= ~0b00000011; // Entrée pour le bouton
     //PORTB |= 0x02; // Configuration de la résistance de tirage
 
-    // row 4 sortie 0
-    // lire sur les colonnes
-    // 4 colonnes en entrees
-    // pull up : par défaut à 1 et 0 qunad on appuie
 
     while(1){
 
