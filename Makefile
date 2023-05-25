@@ -19,7 +19,7 @@ timer.hex: timer.elf
 erase:
 	$(DFU_PROGRAMMER) atmega16u2 erase
 
-flash: erase timer.hex
+flash: timer.hex
 	$(DFU_PROGRAMMER) atmega16u2 flash $<
 
 reset:

@@ -1,30 +1,51 @@
 #include <avr/io.h>
-
-#define LED     8
-#define BOUTON  9
-
-void sleep(int secs) {
-#define STEPS_PER_SEC 650000000
-    unsigned int i,s;
-    for (s=0; s < secs; s++) {
-        for (i=0; i < STEPS_PER_SEC; i++) {
-        }
-    }
-}
+#include <util/delay.h>
 
 int main(void){
-    DDRB |= 0x01;  // Sortie pour la LED
-    DDRB &= ~0x02; // Entrée pour le bouton
-    PORTB |= 0x02; // Configuration de la résistance de tirage
+    CLKSEL0 = 0b00010101;   // sélection de l'horloge externe
+    CLKSEL1 = 0b00001111;   // minimum de 8Mhz
+    CLKPR = 0b10000000;     // modification du diviseur d'horloge (CLKPCE=1)
+    CLKPR = 0;              // 0 pour pas de diviseur (diviseur de 1)
+
+    DDRB |= 0x01;  // direction sortie pour PB0
+    PORTB &= ~0x01;
+
+    PORTD &= ~0x78; // entrees
+    PORTD |= ~0x78;
+
+    // lire pin d sur les bits 40 20 10 et 08
+
+    //DDRB &= ~0b00000011; // Entrée pour le bouton
+    //PORTB |= 0x02; // Configuration de la résistance de tirage
+
+    // row 4 sortie 0
+    // lire sur les colonnes
+    // 4 colonnes en entrees
+    // pull up : par défaut à 1 et 0 qunad on appuie
 
     while(1){
-        if(PINB & 0x02){
-            PORTB &= ~0x01; // LED éteinte
-            sleep(1);
-        }
-        else {
-            PORTB |= 0x01; // LED allumée
-        }
+
+        if ((PIND & 0x40))
+            PORTB &= ~0x80; // LED éteinte
+        else
+            PORTB |= 0x80; // LED allumée
+
+        if ((PIND & 0x20))
+            // open led on pb6
+            PORTB &= ~0x40; // LED éteinte
+        else
+            PORTB |= 0x40; // LED allumée
+
+        if ((PIND & 0x10))
+            // open led on pb5
+            PORTB &= ~0x20; // LED éteinte
+        else
+            PORTB |= 0x20; // LED allumée
+
+        if ((PIND & 0x08))
+            // open led on pb4
+            PORTB &= ~0x10; // LED éteinte
+        else
+            PORTB |= 0x10; // LED allumée
     }
 }
-
