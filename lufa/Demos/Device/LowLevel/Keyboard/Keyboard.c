@@ -59,6 +59,12 @@ static uint16_t IdleMSRemaining = 0;
  */
 int main(void)
 {
+
+    CLKSEL0 = 0b00010101;   // sélection de l'horloge externe
+    CLKSEL1 = 0b00001111;   // minimum de 8Mhz
+    CLKPR = 0b10000000;     // modification du diviseur d'horloge (CLKPCE=1)
+    CLKPR = 0;              // 0 pour pas de diviseur (diviseur de 1)
+
 	SetupHardware();
 
 	LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
@@ -93,11 +99,16 @@ void SetupHardware(void)
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
 #endif
 
+    // LEDS : PB7 à PB4
+
 	/* Hardware Initialization */
-	Joystick_Init();
-	LEDs_Init();
 	USB_Init();
-	Buttons_Init();
+
+    DDRB |= 0x01;  // direction sortie pour PB0
+    PORTB &= ~0x01;
+
+    PORTD &= ~0x78; // entrees
+    PORTD |= ~0x78;
 }
 
 /** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
@@ -252,32 +263,36 @@ void EVENT_USB_Device_StartOfFrame(void)
  */
 void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 {
-	uint8_t JoyStatus_LCL     = Joystick_GetStatus();
-	uint8_t ButtonStatus_LCL  = Buttons_GetStatus();
+    uint8_t UsedKeyCodes      = 0;
 
-	uint8_t UsedKeyCodes      = 0;
-
-	/* Clear the report contents */
+    /* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
 
-	/* Make sent key uppercase by indicating that the left shift key is pressed */
-	ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTSHIFT;
+    // Add shortcuts for copy, paste, and delete
 
-	if (JoyStatus_LCL & JOY_UP)
-	  ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_A;
-	else if (JoyStatus_LCL & JOY_DOWN)
-	  ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_B;
+    // PB3 à PB0  - PD3 à PD6: touches
 
-	if (JoyStatus_LCL & JOY_LEFT)
-	  ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_C;
-	else if (JoyStatus_LCL & JOY_RIGHT)
-	  ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_D;
+    if (!(PIND & 0x40))
+    {
+        // Copy shortcut: Ctrl + C
+        ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_C;
+    }
 
-	if (JoyStatus_LCL & JOY_PRESS)
-	  ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_E;
+    if (!(PIND & 0x20))
+    {
+        // Paste shortcut: Ctrl + V
+        ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_V;
+    }
 
-	if (ButtonStatus_LCL & BUTTONS_BUTTON1)
-	  ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_F;
+    if (!(PIND & 0x10))
+    {
+        // letters
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_F;
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_P;
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_D;
+    }
 }
 
 /** Processes a received LED report, and updates the board LEDs states to match.
