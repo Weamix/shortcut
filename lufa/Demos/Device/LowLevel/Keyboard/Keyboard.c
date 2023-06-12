@@ -104,11 +104,17 @@ void SetupHardware(void)
 	/* Hardware Initialization */
 	USB_Init();
 
-    DDRB |= 0x01;  // direction sortie pour PB0
+/*    DDRB |= 0x01;  // direction sortie pour PB0
     PORTB &= ~0x01;
 
     PORTD &= ~0x78; // entrees
-    PORTD |= ~0x78;
+    PORTD |= ~0x78;*/
+
+    DDRB |= 0xf0;
+    PORTB &= ~0xf0;
+
+    DDRD &= ~0x78;
+    PORTD |= 0x78;
 }
 
 /** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
@@ -263,7 +269,7 @@ void EVENT_USB_Device_StartOfFrame(void)
  */
 void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 {
-    uint8_t UsedKeyCodes      = 0;
+    uint8_t UsedKeyCodes = 0;
 
     /* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_KeyboardReport_Data_t));
@@ -272,27 +278,28 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 
     // PB3 à PB0  - PD3 à PD6: touches
 
-    if (!(PIND & 0x40))
+    if (!(PIND & 0x40)) // PD6
     {
         // Copy shortcut: Ctrl + C
         ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_C;
     }
 
-    if (!(PIND & 0x20))
+    if (!(PIND & 0x20)) // PD3
     {
         // Paste shortcut: Ctrl + V
         ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_V;
     }
 
-    if (!(PIND & 0x10))
+   /* if (!(PINB & 0x08)) // PB3
     {
         // letters
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_F;
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_P;
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_D;
-    }
+    }*/
+
 }
 
 /** Processes a received LED report, and updates the board LEDs states to match.
