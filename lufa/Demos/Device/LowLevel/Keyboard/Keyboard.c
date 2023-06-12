@@ -99,22 +99,28 @@ void SetupHardware(void)
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
 #endif
 
-    // LEDS : PB7 à PB4
-
 	/* Hardware Initialization */
 	USB_Init();
 
-/*    DDRB |= 0x01;  // direction sortie pour PB0
+/*
+ * DDRB |= 0x01;  // direction sortie pour PB0
     PORTB &= ~0x01;
 
     PORTD &= ~0x78; // entrees
     PORTD |= ~0x78;*/
 
+
+// Leds en sortie
     DDRB |= 0xf0;
     PORTB &= ~0xf0;
 
+// Boutons (colX) en entree
     DDRD &= ~0x78;
     PORTD |= 0x78;
+
+// Boutons (rowX) en entree
+    DDRB &= ~0x0f;
+    PORTB |= 0x0f;
 }
 
 /** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs and
@@ -276,7 +282,9 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 
     // Add shortcuts for copy, paste, and delete
 
+    // SCHEMA : https://wiki-se.plil.fr/mediawiki/images/6/6b/I2L-2022-G4-schema.pdf
     // PB3 à PB0  - PD3 à PD6: touches
+    // LEDS : PB7 à PB4
 
     if (!(PIND & 0x40)) // PD6
     {
@@ -292,13 +300,13 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_V;
     }
 
-   /* if (!(PINB & 0x08)) // PB3
+   if (!(PINB & 0x08)) // PB3
     {
         // letters
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_F;
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_P;
         ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_D;
-    }*/
+    }
 
 }
 
