@@ -80,11 +80,6 @@ int main(void)
 	}
 }
 
-
-/** Byte storage for EP **/
-uint8_t EP_DataKey;
-uint8_t EP_DataShortcut[15];
-
 void Handle_EP_IN(void)
 {
     /* Select the IN Endpoint */
@@ -317,23 +312,26 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
     if (!(PIND & 0x40)) // PD6
     {
         for (int i = 0; i < 15; i++) {
-			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[i];
+			// TODO: change the 0 to the correct row
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[0][i];
 		}
     }
 
     if (!(PIND & 0x20)) // PD3
     {
         for (int i = 0; i < 15; i++) {
-			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[i];
+			// TODO: change the 1 to the correct row
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[1][i];
 		}
     }
 
-   if (!(PINB & 0x08)) // PB3
-    {
+   	if (!(PINB & 0x08)) // PB3
+   	{
 		for (int i = 0; i < 15; i++) {
-			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[i];
+			// TODO: change the 2 to the correct row
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[2][i];
 		}
-    }
+	}
 
 }
 
@@ -441,7 +439,7 @@ void HID_Task(void)
 
 /** Byte storage for EP **/
 // A matrix of 6 rows (keys on the embarqued system) and 15 columns (shortcuts for each key)
-uint8_t[6][15] EP_DataShortcutsMatrix;
+uint8_t EP_DataShortcutsMatrix[6][15];
 
 void Handle_EP_OUT(void)
 {
@@ -459,7 +457,7 @@ void Handle_EP_OUT(void)
 			int row = EP_DataKey & 0x0f;
 
 			// read the 15 bytes of the shortcut and put it in a temporary variable
-			uint8_t[15] EP_DataShortcut;
+			uint8_t EP_DataShortcut[15];
 			for (int i = 0; i < 15; i++) {
 				if (Endpoint_BytesInEndpoint() > 0) {
 					EP_DataShortcut[i] = Endpoint_Read_8();
