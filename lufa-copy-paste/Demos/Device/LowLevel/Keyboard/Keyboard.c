@@ -101,35 +101,6 @@ void Handle_EP_IN(void)
     }
 }
 
-void Handle_EP_OUT(void)
-{
-    /* Select the OUT Endpoint */
-    Endpoint_SelectEndpoint(PGM_OUT_EPADDR);
-
-    /* Check if Endpoint contains a packet */
-    if (Endpoint_IsOUTReceived())
-    {
-        /* Check to see if the packet contains data */
-        if (Endpoint_IsReadWriteAllowed())
-        {
-            /* Read in the LED report from the host */
-            EP_DataKey = Endpoint_Read_8();
-
-            // read the 15 bytes of the shortcut (fill with 0 if not 15 bytes)
-            for (int i = 0; i < 15; i++) {
-                if (Endpoint_BytesInEndpoint() > 0) {
-                    EP_DataShortcut[i] = Endpoint_Read_8();
-                } else {
-                    EP_DataShortcut[i] = 0;
-                }
-            }
-        }
-
-        /* Handshake the OUT Endpoint - clear endpoint */
-        Endpoint_ClearOUT();
-    }
-}
-
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void)
 {
@@ -465,4 +436,40 @@ void HID_Task(void)
 
 	/* Process the LED report sent from the host */
 	ReceiveNextReport();
+}
+
+
+/** Byte storage for EP **/
+// A matrix of 6 rows (keys on the embarqued system) and 15 columns (shortcuts for each key)
+uint8_t[6][15] EP_DataShortcutsMatrix;
+
+void Handle_EP_OUT(void)
+{
+    /* Select the OUT Endpoint */
+    Endpoint_SelectEndpoint(PGM_OUT_EPADDR);
+
+    /* Check if Endpoint contains a packet */
+    if (Endpoint_IsOUTReceived())
+    {
+        /* Check to see if the packet contains data */
+        if (Endpoint_IsReadWriteAllowed())
+        {
+            /* Read in the LED report from the host */
+            uint8_t EP_DataKey = Endpoint_Read_8();
+			int row = EP_DataKey & 0x0f;
+
+			// read the 15 bytes of the shortcut and put it in a temporary variable
+			uint8_t[15] EP_DataShortcut;
+			for (int i = 0; i < 15; i++) {
+				if (Endpoint_BytesInEndpoint() > 0) {
+					EP_DataShortcut[i] = Endpoint_Read_8();
+				} else {
+					EP_DataShortcut[i] = 0;
+				}
+			}
+        }
+
+        /* Handshake the OUT Endpoint - clear endpoint */
+        Endpoint_ClearOUT();
+    }
 }
