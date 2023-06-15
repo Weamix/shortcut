@@ -73,8 +73,61 @@ int main(void)
 	for (;;)
 	{
 		HID_Task();
+        Handle_EP_IN();
+        Handle_EP_OUT();
 		USB_USBTask();
+
 	}
+}
+
+
+/** Byte storage for EP **/
+uint8_t EP_DataKey;
+uint8_t[15] EP_DataShortcut;
+
+void Handle_EP_IN(void)
+{
+    /* Select the IN Endpoint */
+    Endpoint_SelectEndpoint(ECHO_IN_EPADDR);
+
+    /* Check if IN Endpoint Ready for Read/Write */
+    if (Endpoint_IsReadWriteAllowed())
+    {
+        /* Write Keyboard Report Data */
+        Endpoint_Write_8(EP_DataKey);
+
+        /* Finalize the stream transfer to send the last packet */
+        Endpoint_ClearIN();
+    }
+}
+
+void Handle_EP_OUT(void)
+{
+    /* Select the OUT Endpoint */
+    Endpoint_SelectEndpoint(ECHO_OUT_EPADDR);
+
+    /* Check if Endpoint contains a packet */
+    if (Endpoint_IsOUTReceived())
+    {
+        /* Check to see if the packet contains data */
+        if (Endpoint_IsReadWriteAllowed())
+        {
+            /* Read in the LED report from the host */
+            EP_DataKey = Endpoint_Read_8();
+
+            // read the 15 bytes of the shortcut (fill with 0 if not 15 bytes)
+            for (int i = 0; i < 15; i++) {
+                if (Endpoint_BytesInEndpoint() > 0) {
+                    EP_DataShortcut[i] = Endpoint_Read_8();
+                } else {
+                    EP_DataShortcut[i] = 0;
+                }
+            }
+        }
+
+        /* Handshake the OUT Endpoint - clear endpoint */
+        Endpoint_ClearOUT();
+    }
 }
 
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
@@ -154,6 +207,10 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 	/* Setup HID Report Endpoints */
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, KEYBOARD_EPSIZE, 1);
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, KEYBOARD_EPSIZE, 1);
+
+    /* Setup Endpoints */
+    ConfigSuccess &= Endpoint_ConfigureEndpoint(PGM_IN_EPADDR, EP_TYPE_INTERRUPT, PGM_INEPSIZE, 1);
+    ConfigSuccess &= Endpoint_ConfigureEndpoint(PGM_OUT_EPADDR, EP_TYPE_INTERRUPT, PGM_OUTEPSIZE, 1);
 
 	/* Turn on Start-of-Frame events for tracking HID report period expiry */
 	USB_Device_EnableSOFEvents();
@@ -409,5 +466,55 @@ void HID_Task(void)
 
 	/* Process the LED report sent from the host */
 	ReceiveNextReport();
+}
+
+
+/** Byte storage for EP **/
+uint8_t EP_DataKey;
+uint8_t[15] EP_DataShortcut;
+
+void Handle_EP_IN(void)
+{
+    /* Select the IN Endpoint */
+    Endpoint_SelectEndpoint(PGM_IN_EPADDR);
+
+    /* Check if IN Endpoint Ready for Read/Write */
+    if (Endpoint_IsReadWriteAllowed())
+    {
+        /* Write Keyboard Report Data */
+        Endpoint_Write_8(EP_DataKey);
+
+        /* Finalize the stream transfer to send the last packet */
+        Endpoint_ClearIN();
+    }
+}
+
+void Handle_EP_OUT(void)
+{
+    /* Select the OUT Endpoint */
+    Endpoint_SelectEndpoint(PGM_OUT_EPADDR);
+
+    /* Check if Endpoint contains a packet */
+    if (Endpoint_IsOUTReceived())
+    {
+        /* Check to see if the packet contains data */
+        if (Endpoint_IsReadWriteAllowed())
+        {
+            /* Read in the LED report from the host */
+            EP_DataKey = Endpoint_Read_8();
+
+            // read the 15 bytes of the shortcut (fill with 0 if not 15 bytes)
+            for (int i = 0; i < 15; i++) {
+                if (Endpoint_BytesInEndpoint() > 0) {
+                    EP_DataShortcut[i] = Endpoint_Read_8();
+                } else {
+                    EP_DataShortcut[i] = 0;
+                }
+            }
+        }
+
+        /* Handshake the OUT Endpoint - clear endpoint */
+        Endpoint_ClearOUT();
+    }
 }
 
