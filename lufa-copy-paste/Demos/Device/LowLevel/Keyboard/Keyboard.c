@@ -120,6 +120,7 @@ void SetupHardware(void) {
     /* Hardware Initialization */
     USB_Init();
 
+    /* Directions */
 
     // Leds en sortie
         DDRB |= 0xf0;
