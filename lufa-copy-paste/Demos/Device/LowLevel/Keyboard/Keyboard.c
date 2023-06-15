@@ -53,6 +53,10 @@ static uint16_t IdleCount = 500;
  */
 static uint16_t IdleMSRemaining = 0;
 
+/** Byte storage for EP **/
+// A matrix of 6 rows (keys on the embarqued system) and 15 columns (shortcuts for each key)
+uint8_t EP_DataShortcutsMatrix[6][15];
+
 
 /** Main program entry point. This routine configures the hardware required by the application, then
  *  enters a loop to run the application tasks in sequence.
@@ -89,7 +93,7 @@ void Handle_EP_IN(void)
     if (Endpoint_IsReadWriteAllowed())
     {
         /* Write Keyboard Report Data */
-        Endpoint_Write_8(EP_DataKey);
+        Endpoint_Write_8(0x00);
 
         /* Finalize the stream transfer to send the last packet */
         Endpoint_ClearIN();
@@ -435,11 +439,6 @@ void HID_Task(void)
 	/* Process the LED report sent from the host */
 	ReceiveNextReport();
 }
-
-
-/** Byte storage for EP **/
-// A matrix of 6 rows (keys on the embarqued system) and 15 columns (shortcuts for each key)
-uint8_t EP_DataShortcutsMatrix[6][15];
 
 void Handle_EP_OUT(void)
 {
