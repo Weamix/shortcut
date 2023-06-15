@@ -83,12 +83,12 @@ int main(void)
 
 /** Byte storage for EP **/
 uint8_t EP_DataKey;
-uint8_t[15] EP_DataShortcut;
+uint8_t EP_DataShortcut[15];
 
 void Handle_EP_IN(void)
 {
     /* Select the IN Endpoint */
-    Endpoint_SelectEndpoint(ECHO_IN_EPADDR);
+    Endpoint_SelectEndpoint(PGM_IN_EPADDR);
 
     /* Check if IN Endpoint Ready for Read/Write */
     if (Endpoint_IsReadWriteAllowed())
@@ -104,7 +104,7 @@ void Handle_EP_IN(void)
 void Handle_EP_OUT(void)
 {
     /* Select the OUT Endpoint */
-    Endpoint_SelectEndpoint(ECHO_OUT_EPADDR);
+    Endpoint_SelectEndpoint(PGM_OUT_EPADDR);
 
     /* Check if Endpoint contains a packet */
     if (Endpoint_IsOUTReceived())
@@ -465,54 +465,4 @@ void HID_Task(void)
 
 	/* Process the LED report sent from the host */
 	ReceiveNextReport();
-}
-
-
-/** Byte storage for EP **/
-uint8_t EP_DataKey;
-uint8_t[15] EP_DataShortcut;
-
-void Handle_EP_IN(void)
-{
-    /* Select the IN Endpoint */
-    Endpoint_SelectEndpoint(PGM_IN_EPADDR);
-
-    /* Check if IN Endpoint Ready for Read/Write */
-    if (Endpoint_IsReadWriteAllowed())
-    {
-        /* Write Keyboard Report Data */
-        Endpoint_Write_8(EP_DataKey);
-
-        /* Finalize the stream transfer to send the last packet */
-        Endpoint_ClearIN();
-    }
-}
-
-void Handle_EP_OUT(void)
-{
-    /* Select the OUT Endpoint */
-    Endpoint_SelectEndpoint(PGM_OUT_EPADDR);
-
-    /* Check if Endpoint contains a packet */
-    if (Endpoint_IsOUTReceived())
-    {
-        /* Check to see if the packet contains data */
-        if (Endpoint_IsReadWriteAllowed())
-        {
-            /* Read in the LED report from the host */
-            EP_DataKey = Endpoint_Read_8();
-
-            // read the 15 bytes of the shortcut (fill with 0 if not 15 bytes)
-            for (int i = 0; i < 15; i++) {
-                if (Endpoint_BytesInEndpoint() > 0) {
-                    EP_DataShortcut[i] = Endpoint_Read_8();
-                } else {
-                    EP_DataShortcut[i] = 0;
-                }
-            }
-        }
-
-        /* Handshake the OUT Endpoint - clear endpoint */
-        Endpoint_ClearOUT();
-    }
 }
