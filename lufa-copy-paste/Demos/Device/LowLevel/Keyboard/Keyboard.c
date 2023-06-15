@@ -313,7 +313,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
     {
         for (int i = 0; i < 15; i++) {
 			// TODO: change the 0 to the correct row
-			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[0][i];
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[0][i];
 		}
     }
 
@@ -321,7 +321,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
     {
         for (int i = 0; i < 15; i++) {
 			// TODO: change the 1 to the correct row
-			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[1][i];
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[1][i];
 		}
     }
 
@@ -329,7 +329,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
    	{
 		for (int i = 0; i < 15; i++) {
 			// TODO: change the 2 to the correct row
-			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[2][i];
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[2][i];
 		}
 	}
 
