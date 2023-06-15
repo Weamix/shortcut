@@ -34,8 +34,8 @@
 ////
 
 DeviceID ID_echo[] = {
-    {0x4242, 0x0002, TYPE_ECHO},
-    {-1, -1}};
+        {0x4242, 0x0002, TYPE_ECHO},
+        {-1,     -1}};
 
 ////
 // Fonctions
@@ -43,24 +43,21 @@ DeviceID ID_echo[] = {
 
 // Tests du périphèrique USB
 
-unsigned char prompt_user_for_key(void)
-{
-  int c;
-  printf("Press the key to configure...\n");
-  scanf("%d", &c);
-  return c;
+unsigned char prompt_user_for_key(void) {
+    int c;
+    printf("Press the key to configure...\n");
+    scanf("%d", &c);
+    return c;
 }
 
-unsigned char *prompt_user_for_string(void)
-{
-  char *s = malloc(15 * sizeof(char));
-  printf("Enter a shortcut to bind to the key...\n");
-  scanf("%s", s);
-  for (int i = strlen(s); i < 15; i++)
-  {
-    s[i] = 0;
-  }
-  return s;
+unsigned char *prompt_user_for_string(void) {
+    char *s = malloc(15 * sizeof(char));
+    printf("Enter a shortcut to bind to the key...\n");
+    scanf("%s", s);
+    for (int i = strlen(s); i < 15; i++) {
+        s[i] = 0;
+    }
+    return s;
 }
 
 int test_echo_v2(void) {
@@ -102,12 +99,11 @@ int test_echo_v2(void) {
 
 // Main procedure
 
-int main(void)
-{
-  scan_for_devices(ID_echo);
-  configure_devices();
-  int result = test_echo_v2();
-  printf("Résultat du test : %d\n", result);
-  close_devices();
-  exit(0);
+int main(void) {
+    scan_for_devices(ID_echo);
+    configure_devices();
+    int result = test_echo_v2();
+    printf("Résultat du test : %d\n", result);
+    close_devices();
+    exit(0);
 }
