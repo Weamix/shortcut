@@ -308,7 +308,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 
     if (!(PIND & 0x40)) // PD6
     {
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 4; i++) {
 			// TODO: change the 0 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[0][i];
         }
@@ -316,7 +316,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 
     if (!(PIND & 0x20)) // PD3
     {
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 4; i++) {
 			// TODO: change the 1 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[1][i];
         }
@@ -324,7 +324,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 
    	if (!(PINB & 0x08)) // PB3
    	{
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 4; i++) {
 			// TODO: change the 2 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[2][i];
         }
@@ -433,6 +433,49 @@ void HID_Task(void)
 	ReceiveNextReport();
 }
 
+unsigned char convert(unsigned char ascii){
+    switch(ascii){
+        case 'a': return HID_KEYBOARD_SC_A;
+        case 'b': return HID_KEYBOARD_SC_B;
+        case 'c': return HID_KEYBOARD_SC_C;
+        case 'd': return HID_KEYBOARD_SC_D;
+        case 'e': return HID_KEYBOARD_SC_E;
+        case 'f': return HID_KEYBOARD_SC_F;
+        case 'g': return HID_KEYBOARD_SC_G;
+        case 'h': return HID_KEYBOARD_SC_H;
+        case 'i': return HID_KEYBOARD_SC_I;
+        case 'j': return HID_KEYBOARD_SC_J;
+        case 'k': return HID_KEYBOARD_SC_K;
+        case 'l': return HID_KEYBOARD_SC_L;
+        case 'm': return HID_KEYBOARD_SC_M;
+        case 'n': return HID_KEYBOARD_SC_N;
+        case 'o': return HID_KEYBOARD_SC_O;
+        case 'p': return HID_KEYBOARD_SC_P;
+        case 'q': return HID_KEYBOARD_SC_Q;
+        case 'r': return HID_KEYBOARD_SC_R;
+        case 's': return HID_KEYBOARD_SC_S;
+        case 't': return HID_KEYBOARD_SC_T;
+        case 'u': return HID_KEYBOARD_SC_U;
+        case 'v': return HID_KEYBOARD_SC_V;
+        case 'w': return HID_KEYBOARD_SC_W;
+        case 'x': return HID_KEYBOARD_SC_X;
+        case 'y': return HID_KEYBOARD_SC_Y;
+        case 'z': return HID_KEYBOARD_SC_Z;
+        case '0': return HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS;
+        case '1': return HID_KEYBOARD_SC_1_AND_EXCLAMATION;
+        case '2': return HID_KEYBOARD_SC_2_AND_AT;
+        case '3': return HID_KEYBOARD_SC_3_AND_HASHMARK;
+        case '4': return HID_KEYBOARD_SC_4_AND_DOLLAR;
+        case '5': return HID_KEYBOARD_SC_5_AND_PERCENTAGE;
+        case '6': return HID_KEYBOARD_SC_6_AND_CARET;
+        case '7': return HID_KEYBOARD_SC_7_AND_AMPERSAND;
+        case '8': return HID_KEYBOARD_SC_8_AND_ASTERISK;
+        case '9': return HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS;
+        default: return  HID_KEYBOARD_SC_SPACE;
+    }
+
+}
+
 void Handle_EP_OUT(void)
 {
     /* Select the OUT Endpoint */
@@ -449,16 +492,18 @@ void Handle_EP_OUT(void)
 			int row = EP_DataKey & 0x0f;
 
 			// read the 15 bytes of the shortcut and put it in a temporary variable
-			uint8_t EP_DataShortcut[15];
-            if(row<6){
+			//uint8_t EP_DataShortcut[15];
+            if(row<3){
+                PORTB |= (1<<(row+5));
                 for (int i = 0; i < 15; i++) {
                     uint8_t key = Endpoint_Read_8();
                     if(key==0){
                         break;
                     }
                     if (Endpoint_BytesInEndpoint() > 0) {
-                        EP_DataShortcutsMatrix[row][i] = key;
-                        PORTB |= (1<<(row+5));
+                        if(i<4){
+                            EP_DataShortcutsMatrix[row][i] = convert(key);
+                        }
                     } else {
                         EP_DataShortcutsMatrix[row][i] = 0;
                     }
@@ -470,3 +515,5 @@ void Handle_EP_OUT(void)
         Endpoint_ClearOUT();
     }
 }
+
+

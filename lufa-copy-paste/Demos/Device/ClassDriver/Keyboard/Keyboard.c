@@ -144,7 +144,8 @@ void EVENT_USB_Device_StartOfFrame(void)
 
 /** HID class driver callback function for the creation of HID reports to the host.
  *
- *  \param[in]     HIDInterfaceInfo  Pointer to the HID class interface configuration structure being referenced
+ *  \
+ *  ram[in]     HIDInterfaceInfo  Pointer to the HID class interface configuration structure being referenced
  *  \param[in,out] ReportID    Report ID requested by the host if non-zero, otherwise callback should set to the generated report ID
  *  \param[in]     ReportType  Type of the report to create, either HID_REPORT_ITEM_In or HID_REPORT_ITEM_Feature
  *  \param[out]    ReportData  Pointer to a buffer where the created report should be stored

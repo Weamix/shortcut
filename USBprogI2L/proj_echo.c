@@ -47,7 +47,7 @@ unsigned char prompt_user_for_key(void)
 {
   int c;
   printf("Press the key to configure...\n");
-  scanf("%c", &c);
+  scanf("%d", &c);
   return c;
 }
 
@@ -63,45 +63,41 @@ unsigned char *prompt_user_for_string(void)
   return s;
 }
 
-int test_echo_v2(void)
-{
-  char key = prompt_user_for_key();
-  char *s = prompt_user_for_string();
-  if (strlen(s) > 15)
-  {
-    printf("Error: string too long\n");
-    return -1;
-  }
-  unsigned char token[EP_OUT_SIZE] = {key, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11], s[12], s[13], s[14]};
-  unsigned char bytes[EP_IN_SIZE];
-  if (nb_devices > 0)
-  {
-    if (devices[0].in[0].type != LIBUSB_TRANSFER_TYPE_INTERRUPT)
-      return -2;
-    int in = devices[0].in[0].address;
-    if (devices[0].out[0].type != LIBUSB_TRANSFER_TYPE_INTERRUPT)
-      return -3;
-    int out = devices[0].out[0].address;
-    int size = 0, ressnd, resrcv, i;
-    while (1)
-    {
-      ressnd = libusb_interrupt_transfer(devices[0].handle, out, token, EP_OUT_SIZE, &size, DEFAULT_TIMEOUT);
-      printf("Résultat envoi=%d taille envoyée=%d\n", ressnd, size);
-      for (i = 0; i < EP_OUT_SIZE; i++)
-        printf("%02x ", token[i]);
-      printf("\n");
-      sleep(1);
-      resrcv = libusb_interrupt_transfer(devices[0].handle, in | LIBUSB_ENDPOINT_IN, bytes, EP_IN_SIZE, &size, DEFAULT_TIMEOUT);
-      printf("Résultat réception=%d taille réception=%d\n", resrcv, size);
-      for (i = 0; i < EP_IN_SIZE; i++)
-        printf("%02x ", bytes[i]);
-      printf("\n");
-      sleep(1);
-      token[0]++;
+int test_echo_v2(void) {
+    char key = prompt_user_for_key();
+    char *s = prompt_user_for_string();
+    if (strlen(s) > 15) {
+        printf("Error: string too long\n");
+        return -1;
     }
-    return 0;
-  }
-  return -1;
+    unsigned char token[EP_OUT_SIZE] = {key, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11],
+                                        s[12], s[13], s[14]};
+    unsigned char bytes[EP_IN_SIZE];
+    printf("nb %d \n", nb_devices);
+    if (nb_devices > 0) {
+        if (devices[0].in[0].type != LIBUSB_TRANSFER_TYPE_INTERRUPT)
+            return -2;
+        int in = devices[0].in[0].address;
+        if (devices[0].out[0].type != LIBUSB_TRANSFER_TYPE_INTERRUPT)
+            return -3;
+        int out = devices[0].out[0].address;
+        int size = 0, ressnd, resrcv, i;
+        ressnd = libusb_interrupt_transfer(devices[0].handle, out, token, EP_OUT_SIZE, &size, DEFAULT_TIMEOUT);
+        printf("Résultat envoi=%d taille envoyée=%d\n", ressnd, size);
+        for (i = 0; i < EP_OUT_SIZE; i++)
+            printf("%02x ", token[i]);
+        printf("\n");
+        sleep(1);
+        resrcv = libusb_interrupt_transfer(devices[0].handle, in | LIBUSB_ENDPOINT_IN, bytes, EP_IN_SIZE, &size,
+                                           DEFAULT_TIMEOUT);
+        printf("Résultat réception=%d taille réception=%d\n", resrcv, size);
+        for (i = 0; i < EP_IN_SIZE; i++)
+            printf("%02x ", bytes[i]);
+        printf("\n");
+        sleep(1);
+        return 0;
+    }
+    return -1;
 }
 
 // Main procedure
