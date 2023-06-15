@@ -345,24 +345,23 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 
     if (!(PIND & 0x40)) // PD6
     {
-        // Copy shortcut: Ctrl + C
-        ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
-        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_C;
+        for (int i = 0; i < 15; i++) {
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[i];
+		}
     }
 
     if (!(PIND & 0x20)) // PD3
     {
-        // Paste shortcut: Ctrl + V
-        ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
-        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_V;
+        for (int i = 0; i < 15; i++) {
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[i];
+		}
     }
 
    if (!(PINB & 0x08)) // PB3
     {
-        // letters
-        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_F;
-        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_P;
-        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_D;
+		for (int i = 0; i < 15; i++) {
+			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcut[i];
+		}
     }
 
 }
@@ -517,4 +516,3 @@ void Handle_EP_OUT(void)
         Endpoint_ClearOUT();
     }
 }
-
