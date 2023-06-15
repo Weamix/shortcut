@@ -141,20 +141,12 @@ for(i=0;i<nb_devices;i++){
   /* Get the configuration value */
   libusb_device *device=libusb_get_device(handle);
   struct libusb_config_descriptor *cfg_descriptor;
-  status=libusb_get_config_descriptor(device,0,&cfg_descriptor);
+  status=libusb_get_active_config_descriptor(device,&cfg_descriptor);
   if(status!=0)
-    { perror("configure_devices.libusb_get_config_descriptor"); exit(-1); }
+    { perror("configure_devices.libusb_get_active_config_descriptor"); exit(-1); }
   int cfg_value=cfg_descriptor->bConfigurationValue;
 #ifdef VERBOSE
   printf("  using configuration value %d\n",cfg_value);
-#endif
-
-  /* Set the configuration */
-  status=libusb_set_configuration(handle,cfg_value);
-  if(status!=0)
-    { perror("configure_devices.libusb_set_configuration"); exit(-1); }
-#ifdef VERBOSE
-  printf("  configuration of value %d selected\n",cfg_value);
 #endif
 
   /* Claiming interfaces */
@@ -162,36 +154,41 @@ for(i=0;i<nb_devices;i++){
     const struct libusb_interface *altif_descriptor=cfg_descriptor->interface+j;
     const struct libusb_interface_descriptor *if_descriptor=
       altif_descriptor->altsetting;
-    int if_number=if_descriptor->bInterfaceNumber;
-    status=libusb_claim_interface(handle,if_number);
-    if(status!=0)
-      { perror("configure_devices.libusb_claim_interface"); exit(-1); }
+    int if_class=if_descriptor->bInterfaceClass;
+    if (if_class == LIBUSB_CLASS_VENDOR_SPEC) {
+
+          int if_number = if_descriptor->bInterfaceNumber;
+          status = libusb_claim_interface(handle, if_number);
+          if (status != 0) {
+              perror("configure_devices.libusb_claim_interface");
+              exit(-1);
+          }
 #ifdef VERBOSE
-    printf("  interface #%d claimed\n",if_number);
+          printf("  interface #%d claimed\n",if_number);
 #endif
 
-    /* Find communication endpoints */
-    for(k=0;k<if_descriptor->bNumEndpoints;k++){
-      const struct libusb_endpoint_descriptor *ep_descriptor=
-        if_descriptor->endpoint+k;
-      int type=(ep_descriptor->bmAttributes & 0x3);
-      int address=ep_descriptor->bEndpointAddress;
+          /* Find communication endpoints */
+          for (k = 0; k < if_descriptor->bNumEndpoints; k++) {
+              const struct libusb_endpoint_descriptor *ep_descriptor =
+                      if_descriptor->endpoint + k;
+              int type = (ep_descriptor->bmAttributes & 0x3);
+              int address = ep_descriptor->bEndpointAddress;
 #ifdef VERBOSE
-    printf("    endpoint found; type=%02x, address=%02x\n",type,address);
+              printf("    endpoint found; type=%02x, address=%02x\n",type,address);
 #endif
-      unsigned char direction=(address & LIBUSB_ENDPOINT_IN);
-      if(direction!=0){
-        int nb=current->nb_in;
-        current->in[nb].type=type;
-        current->in[nb].address=address&(~LIBUSB_ENDPOINT_IN);
-        current->nb_in++;
-        }
-      else{
-        int nb=current->nb_out;
-        current->out[nb].type=type;
-        current->out[nb].address=address;
-        current->nb_out++;
-        }
+              unsigned char direction = (address & LIBUSB_ENDPOINT_IN);
+              if (direction != 0) {
+                  int nb = current->nb_in;
+                  current->in[nb].type = type;
+                  current->in[nb].address = address & (~LIBUSB_ENDPOINT_IN);
+                  current->nb_in++;
+              } else {
+                  int nb = current->nb_out;
+                  current->out[nb].type = type;
+                  current->out[nb].address = address;
+                  current->nb_out++;
+              }
+          }
       }
     }
 
@@ -213,7 +210,7 @@ for(i=0;i<nb_devices;i++){
   /* Get the configuration value */
   libusb_device *device=libusb_get_device(handle);
   struct libusb_config_descriptor *cfg_descriptor;
-  status=libusb_get_config_descriptor(device,0,&cfg_descriptor);
+  status=libusb_get_active_config_descriptor(device,&cfg_descriptor);
   if(status!=0)
     { perror("close_devices.libusb_get_config_descriptor"); exit(-1); }
   int cfg_value=cfg_descriptor->bConfigurationValue;
@@ -226,15 +223,17 @@ for(i=0;i<nb_devices;i++){
     const struct libusb_interface *altif_descriptor=cfg_descriptor->interface+j;
     const struct libusb_interface_descriptor *if_descriptor=
       altif_descriptor->altsetting;
-    int if_number=if_descriptor->bInterfaceNumber;
-    status=libusb_release_interface(handle,if_number);
-    if(status!=0)
-      { perror("close_devices.libusb_release_interface"); exit(-1); }
+    int if_class=if_descriptor->bInterfaceClass;
+    if (if_class == LIBUSB_CLASS_VENDOR_SPEC) {
+      int if_number=if_descriptor->bInterfaceNumber;
+      status=libusb_release_interface(handle,if_number);
+      if(status!=0)
+        { perror("close_devices.libusb_release_interface"); exit(-1); }
 #ifdef VERBOSE
     printf("  interface #%d unclaimed\n",if_number);
 #endif
+      }
     }
-
   /* Close device handle */
   libusb_close(handle);
   }

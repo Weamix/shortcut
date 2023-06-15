@@ -457,13 +457,15 @@ void Handle_EP_OUT(void)
 
 			// read the 15 bytes of the shortcut and put it in a temporary variable
 			uint8_t EP_DataShortcut[15];
-			for (int i = 0; i < 15; i++) {
-				if (Endpoint_BytesInEndpoint() > 0) {
-					EP_DataShortcut[i] = Endpoint_Read_8();
-				} else {
-					EP_DataShortcut[i] = 0;
-				}
-			}
+            if(row<6){
+                for (int i = 0; i < 15; i++) {
+                    if (Endpoint_BytesInEndpoint() > 0) {
+                        EP_DataShortcutsMatrix[row][i] = Endpoint_Read_8();
+                    } else {
+                        EP_DataShortcutsMatrix[row][i] = 0;
+                    }
+                }
+            }
         }
 
         /* Handshake the OUT Endpoint - clear endpoint */

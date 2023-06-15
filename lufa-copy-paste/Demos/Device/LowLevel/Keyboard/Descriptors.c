@@ -98,8 +98,8 @@ DeviceDescriptor =
 
                 .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
-                .VendorID               = 0x03EB,
-                .ProductID              = 0x2042,
+                .VendorID               = 0x4242,
+                .ProductID              = 0x0002,
                 .ReleaseNumber          = VERSION_BCD(0, 0, 1),
 
                 .ManufacturerStrIndex   = STRING_ID_Manufacturer,

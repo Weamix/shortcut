@@ -21,7 +21,8 @@
 ////
 
 #define		TYPE_ECHO	0
-#define		EP_SIZE		16
+#define		EP_OUT_SIZE		16
+#define		EP_IN_SIZE		1
 #define		DEFAULT_TIMEOUT	1000
 
 ////
@@ -43,35 +44,9 @@ DeviceID ID_echo[]={
 
 // Tests du périphèrique USB
 
-int test_echo(void){
-unsigned char token[EP_SIZE]={0xab};
-unsigned char bytes[EP_SIZE];
-if(nb_devices>0){
-  if(devices[0].in[0].type!=LIBUSB_TRANSFER_TYPE_INTERRUPT) return -2;
-  int in=devices[0].in[0].address;
-  if(devices[0].out[0].type!=LIBUSB_TRANSFER_TYPE_INTERRUPT) return -3;
-  int out=devices[0].out[0].address;
-  int size=0,ressnd,resrcv,i;
-  ressnd=libusb_interrupt_transfer(devices[0].handle,out,token,EP_SIZE,&size,DEFAULT_TIMEOUT);
-  printf("Résultat envoi=%d taille envoyée=%d\n",ressnd,size);
-  for(i=0;i<EP_SIZE;i++) printf("%02x ",token[i]);
-  printf("\n");
-  sleep(5);
-  while(1){
-    resrcv=libusb_interrupt_transfer(devices[0].handle,in|LIBUSB_ENDPOINT_IN,bytes,EP_SIZE,&size,DEFAULT_TIMEOUT);
-    printf("Résultat réception=%d taille réception=%d\n",resrcv,size);
-    for(i=0;i<EP_SIZE;i++) printf("%02x ",bytes[i]);
-    printf("\n");
-    sleep(1);
-    }
-  return 0;
-  }
-return -1;
-}
-
 int test_echo_v2(void){
-unsigned char token[EP_SIZE]={0x10};
-unsigned char bytes[EP_SIZE];
+unsigned char token[EP_OUT_SIZE]={0x0,'a','z','q',0,0,0,0,0,0,0,0,0,0,0,0};
+unsigned char bytes[EP_IN_SIZE];
 if(nb_devices>0){
   if(devices[0].in[0].type!=LIBUSB_TRANSFER_TYPE_INTERRUPT) return -2;
   int in=devices[0].in[0].address;
@@ -79,14 +54,14 @@ if(nb_devices>0){
   int out=devices[0].out[0].address;
   int size=0,ressnd,resrcv,i;
   while(1){
-    ressnd=libusb_interrupt_transfer(devices[0].handle,out,token,EP_SIZE,&size,DEFAULT_TIMEOUT);
+    ressnd=libusb_interrupt_transfer(devices[0].handle,out,token,EP_OUT_SIZE,&size,DEFAULT_TIMEOUT);
     printf("Résultat envoi=%d taille envoyée=%d\n",ressnd,size);
-    for(i=0;i<EP_SIZE;i++) printf("%02x ",token[i]);
+    for(i=0;i<EP_OUT_SIZE;i++) printf("%02x ",token[i]);
     printf("\n");
     sleep(1);
-    resrcv=libusb_interrupt_transfer(devices[0].handle,in|LIBUSB_ENDPOINT_IN,bytes,EP_SIZE,&size,DEFAULT_TIMEOUT);
+    resrcv=libusb_interrupt_transfer(devices[0].handle,in|LIBUSB_ENDPOINT_IN,bytes,EP_IN_SIZE,&size,DEFAULT_TIMEOUT);
     printf("Résultat réception=%d taille réception=%d\n",resrcv,size);
-    for(i=0;i<EP_SIZE;i++) printf("%02x ",bytes[i]);
+    for(i=0;i<EP_IN_SIZE;i++) printf("%02x ",bytes[i]);
     printf("\n");
     sleep(1);
     token[0]++;
