@@ -56,6 +56,11 @@
 			USB_HID_Descriptor_HID_t              HID_KeyboardHID;
 			USB_Descriptor_Endpoint_t             HID_ReportINEndpoint;
 			USB_Descriptor_Endpoint_t             HID_ReportOUTEndpoint;
+
+            USB_Descriptor_Interface_t            PGM_Interface;
+            USB_Descriptor_Endpoint_t             PGM_INEndpoint;
+            USB_Descriptor_Endpoint_t             PGM_OUTEndpoint;
+
 		} USB_Descriptor_Configuration_t;
 
 		/** Enum for the device interface descriptor IDs within the device. Each interface descriptor
@@ -65,6 +70,7 @@
 		enum InterfaceDescriptors_t
 		{
 			INTERFACE_ID_Keyboard = 0, /**< Keyboard interface descriptor ID */
+            INTERFACE_ID_PGM = 1,
 		};
 
 		/** Enum for the device string descriptor IDs within the device. Each string descriptor should
@@ -78,15 +84,23 @@
 			STRING_ID_Product      = 2, /**< Product string ID */
 		};
 
-	/* Macros: */
+	/* Macros: MAX is 4 for the micro controller */
 		/** Endpoint address of the Keyboard HID reporting IN endpoint. */
 		#define KEYBOARD_IN_EPADDR        (ENDPOINT_DIR_IN  | 1)
 
 		/** Endpoint address of the Keyboard HID reporting OUT endpoint. */
 		#define KEYBOARD_OUT_EPADDR       (ENDPOINT_DIR_OUT | 2)
 
+        /** Endpoint address of the Programm IN endpoint. */
+        #define PGM_IN_EPADDR        (ENDPOINT_DIR_IN  | 3)
+
+        /** Endpoint address of the Programm OUT endpoint. */
+        #define PGM_OUT_EPADDR        (ENDPOINT_DIR_OUT  | 4)
+
 		/** Size in bytes of the Keyboard HID reporting IN and OUT endpoints. */
-		#define KEYBOARD_EPSIZE           8
+		#define KEYBOARD_EPSIZE         8
+        #define PGM_OUTEPSIZE          16
+        #define PGM_INEPSIZE           1
 
 	/* Function Prototypes: */
 		uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
