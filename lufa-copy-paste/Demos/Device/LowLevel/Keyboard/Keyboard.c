@@ -125,13 +125,6 @@ void SetupHardware(void)
 	/* Hardware Initialization */
 	USB_Init();
 
-/*
- * DDRB |= 0x01;  // direction sortie pour PB0
-    PORTB &= ~0x01;
-
-    PORTD &= ~0x78; // entrees
-    PORTD |= ~0x78;*/
-
 
 // Leds en sortie
     DDRB |= 0xf0;
@@ -318,7 +311,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
         for (int i = 0; i < 15; i++) {
 			// TODO: change the 0 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[0][i];
-		}
+        }
     }
 
     if (!(PIND & 0x20)) // PD3
@@ -326,7 +319,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
         for (int i = 0; i < 15; i++) {
 			// TODO: change the 1 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[1][i];
-		}
+        }
     }
 
    	if (!(PINB & 0x08)) // PB3
@@ -334,7 +327,7 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
 		for (int i = 0; i < 15; i++) {
 			// TODO: change the 2 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[2][i];
-		}
+        }
 	}
 
 }
@@ -459,8 +452,13 @@ void Handle_EP_OUT(void)
 			uint8_t EP_DataShortcut[15];
             if(row<6){
                 for (int i = 0; i < 15; i++) {
+                    uint8_t key = Endpoint_Read_8();
+                    if(key==0){
+                        break;
+                    }
                     if (Endpoint_BytesInEndpoint() > 0) {
-                        EP_DataShortcutsMatrix[row][i] = Endpoint_Read_8();
+                        EP_DataShortcutsMatrix[row][i] = key;
+                        PORTB |= (1<<(row+5));
                     } else {
                         EP_DataShortcutsMatrix[row][i] = 0;
                     }
