@@ -309,7 +309,6 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
     if (!(PIND & 0x40)) // PD6
     {
         for (int i = 0; i < 4; i++) {
-			// TODO: change the 0 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[0][i];
         }
     }
@@ -317,7 +316,6 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
     if (!(PIND & 0x20)) // PD3
     {
         for (int i = 0; i < 4; i++) {
-			// TODO: change the 1 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[1][i];
         }
     }
@@ -325,10 +323,30 @@ void CreateKeyboardReport(USB_KeyboardReport_Data_t* const ReportData)
    	if (!(PINB & 0x08)) // PB3
    	{
 		for (int i = 0; i < 4; i++) {
-			// TODO: change the 2 to the correct row
 			ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[2][i];
         }
 	}
+
+    if (!(PINB & 0x04)) // PB2
+    {
+        for (int i = 0; i < 4; i++) {
+            ReportData->KeyCode[UsedKeyCodes++] = EP_DataShortcutsMatrix[3][i];
+        }
+    }
+
+    if (!(PINB & 0x02)) // PB1 : Ctrl + C
+    {
+        // Copy shortcut: Ctrl + C
+        ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_C;
+    }
+
+    if (!(PINB & 0x01)) // PB0 : Ctrl + V
+    {
+        // Paste shortcut: Ctrl + V
+        ReportData->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
+        ReportData->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_V;
+    }
 
 }
 
@@ -493,7 +511,7 @@ void Handle_EP_OUT(void)
 
 			// read the 15 bytes of the shortcut and put it in a temporary variable
 			//uint8_t EP_DataShortcut[15];
-            if(row<3){
+            if(row<4){
                 PORTB |= (1<<(row+5));
                 for (int i = 0; i < 15; i++) {
                     uint8_t key = Endpoint_Read_8();
