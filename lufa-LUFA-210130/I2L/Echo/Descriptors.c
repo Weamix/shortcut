@@ -109,7 +109,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.EndpointAddress        = ECHO_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = ECHO_EPSIZE,
+			.EndpointSize           = ECHO_INEPSIZE,
 			.PollingIntervalMS      = 0x05
 		},
 
@@ -119,7 +119,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.EndpointAddress        = ECHO_OUT_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = ECHO_EPSIZE,
+			.EndpointSize           = ECHO_OUTEPSIZE,
 			.PollingIntervalMS      = 0x05
 		}
 
@@ -192,4 +192,3 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 	*DescriptorAddress = Address;
 	return Size;
 }
-

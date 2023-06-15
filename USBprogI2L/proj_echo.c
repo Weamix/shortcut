@@ -21,7 +21,7 @@
 ////
 
 #define		TYPE_ECHO	0
-#define		EP_SIZE		10
+#define		EP_SIZE		16
 #define		DEFAULT_TIMEOUT	1000
 
 ////
@@ -70,7 +70,7 @@ return -1;
 }
 
 int test_echo_v2(void){
-unsigned char token[EP_SIZE]={0x01};
+unsigned char token[EP_SIZE]={0x10};
 unsigned char bytes[EP_SIZE];
 if(nb_devices>0){
   if(devices[0].in[0].type!=LIBUSB_TRANSFER_TYPE_INTERRUPT) return -2;

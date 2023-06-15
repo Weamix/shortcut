@@ -90,7 +90,8 @@
 		#define ECHO_OUT_EPADDR        (ENDPOINT_DIR_OUT  | 2)
 
 		/** Size in bytes of the Echo endpoints. */
-		#define ECHO_EPSIZE           1
+		#define ECHO_OUTEPSIZE          16
+		#define ECHO_INEPSIZE           1
 
 
 	/* Function Prototypes: */
@@ -100,4 +101,3 @@
 		                                    ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3);
 
 #endif
-

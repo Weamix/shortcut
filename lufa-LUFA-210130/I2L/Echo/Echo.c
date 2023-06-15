@@ -117,7 +117,8 @@ void EVENT_USB_Device_ControlRequest(void)
 }
 
 /** Byte storage for EP **/
-uint8_t EP_Data;
+uint8_t EP_DataKey;
+uint8_t[15] EP_DataShortcut;
 
 void Handle_EP_IN(void)
 {
@@ -128,7 +129,7 @@ void Handle_EP_IN(void)
 	if (Endpoint_IsReadWriteAllowed())
 	{
 		/* Write Keyboard Report Data */
-		Endpoint_Write_8(EP_Data);
+		Endpoint_Write_8(EP_DataKey);
 
 		/* Finalize the stream transfer to send the last packet */
 		Endpoint_ClearIN();
@@ -147,7 +148,16 @@ void Handle_EP_OUT(void)
 		if (Endpoint_IsReadWriteAllowed())
 		{
 			/* Read in the LED report from the host */
-			EP_Data = Endpoint_Read_8();
+			EP_DataKey = Endpoint_Read_8();
+
+			// read the 15 bytes of the shortcut (fill with 0 if not 15 bytes)
+			for (int i = 0; i < 15; i++) {
+				if (Endpoint_BytesInEndpoint() > 0) {
+					EP_DataShortcut[i] = Endpoint_Read_8();
+				} else {
+					EP_DataShortcut[i] = 0;
+				}
+			}
 		}
 
 		/* Handshake the OUT Endpoint - clear endpoint */
